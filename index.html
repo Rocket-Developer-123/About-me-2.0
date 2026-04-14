@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RIDHAAN // SYSTEM.BIO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cyan: #00f5ff;
+    --blue: #0a84ff;
+    --purple: #bf5af2;
+    --pink: #ff375f;
+    --bg: #020408;
+    --bg2: #060d14;
+    --bg3: #0a1628;
+    --glass: rgba(0, 245, 255, 0.04);
+    --glass-border: rgba(0, 245, 255, 0.15);
+    --text: #c8d8e8;
+    --text-dim: #5a7a8a;
+    --grid: rgba(0, 245, 255, 0.035);
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* ── CUSTOM CURSOR ── */
+  .cursor {
+    width: 8px; height: 8px;
+    background: var(--cyan);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9999;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 12px var(--cyan), 0 0 24px var(--cyan);
+    transition: transform 0.08s ease, width 0.2s, height 0.2s;
+  }
+  .cursor-ring {
+    width: 32px; height: 32px;
+    border: 1px solid rgba(0,245,255,0.5);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.18s ease, border-color 0.2s;
+  }
+  body:has(a:hover) .cursor, body:has(button:hover) .cursor { width: 16px; height: 16px; }
+  body:has(a:hover) .cursor-ring, body:has(button:hover) .cursor-ring { border-color: var(--cyan); transform: translate(-50%,-50%) scale(1.5); }
+
+  /* ── BACKGROUND GRID + CANVAS ── */
+  #bg-canvas {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0; pointer-events: none;
+  }
+
+  .grid-bg {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+  }
+
+  .scanlines {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    opacity: 0.4;
+  }
+
+  /* ── LAYOUT ── */
+  .wrapper { position: relative; z-index: 2; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 60px;
+    background: rgba(2, 4, 8, 0.7);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(0,245,255,0.08);
+  }
+  .nav-logo {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.85rem; font-weight: 700;
+    color: var(--cyan);
+    letter-spacing: 0.2em;
+    text-shadow: 0 0 12px var(--cyan);
+  }
+  .nav-links {
+    display: flex; gap: 2rem; list-style: none;
+  }
+  .nav-links a {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem; color: var(--text-dim);
+    text-decoration: none; letter-spacing: 0.12em;
+    transition: color 0.2s, text-shadow 0.2s;
+    position: relative;
+  }
+  .nav-links a::before { content: '//'; margin-right: 4px; opacity: 0.4; }
+  .nav-links a:hover { color: var(--cyan); text-shadow: 0 0 8px var(--cyan); }
+  .status-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan);
+    animation: pulse-dot 2s infinite;
+  }
+  @keyframes pulse-dot {
+    0%,100% { opacity: 1; box-shadow: 0 0 8px var(--cyan); }
+    50% { opacity: 0.4; box-shadow: 0 0 2px var(--cyan); }
+  }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 120px 2rem 4rem;
+    position: relative; overflow: hidden;
+  }
+
+  .hero-inner {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 5rem;
+    align-items: center;
+    max-width: 1100px; width: 100%;
+  }
+
+  /* profile image */
+  .profile-wrap {
+    position: relative; flex-shrink: 0;
+  }
+  .profile-hex {
+    position: relative;
+    width: 220px; height: 220px;
+  }
+  .profile-hex::before {
+    content: '';
+    position: absolute; inset: -3px;
+    background: conic-gradient(var(--cyan), var(--blue), var(--purple), var(--cyan));
+    border-radius: 38% 62% 63% 37% / 41% 44% 56% 59%;
+    animation: morph-border 6s ease-in-out infinite, spin-slow 12s linear infinite;
+    z-index: -1;
+    filter: blur(1px);
+  }
+  .profile-hex::after {
+    content: '';
+    position: absolute; inset: -8px;
+    background: conic-gradient(transparent 60%, rgba(0,245,255,0.3) 80%, transparent 100%);
+    border-radius: 38% 62% 63% 37% / 41% 44% 56% 59%;
+    animation: spin-slow 6s linear infinite reverse;
+    z-index: -2;
+    filter: blur(3px);
+  }
+  @keyframes morph-border {
+    0%,100% { border-radius: 38% 62% 63% 37% / 41% 44% 56% 59%; }
+    33% { border-radius: 60% 40% 45% 55% / 58% 52% 48% 42%; }
+    66% { border-radius: 50% 50% 30% 70% / 62% 38% 62% 38%; }
+  }
+  @keyframes spin-slow { to { transform: rotate(360deg); } }
+
+  .profile-img {
+    width: 220px; height: 220px;
+    object-fit: cover;
+    border-radius: 38% 62% 63% 37% / 41% 44% 56% 59%;
+    animation: morph-border 6s ease-in-out infinite;
+    display: block;
+    background: var(--bg3);
+    position: relative; z-index: 1;
+    /* Placeholder appearance when no image */
+    background-image: 
+      linear-gradient(135deg, var(--bg3) 0%, var(--bg2) 100%);
+  }
+  /* Placeholder overlay shown when image fails/is empty */
+  .profile-placeholder {
+    position: absolute; inset: 0; z-index: 2;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: var(--text-dim);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 0.12em;
+    border-radius: 38% 62% 63% 37% / 41% 44% 56% 59%;
+    animation: morph-border 6s ease-in-out infinite;
+    overflow: hidden;
+    background: var(--bg3);
+    pointer-events: none;
+  }
+  .profile-placeholder .ph-icon { font-size: 3rem; opacity: 0.3; margin-bottom: 8px; }
+  .profile-placeholder .ph-text { opacity: 0.5; text-align: center; line-height: 1.8; }
+
+  /* corner decorators */
+  .corner-deco {
+    position: absolute; width: 20px; height: 20px;
+    border-color: var(--cyan); border-style: solid; opacity: 0.6;
+  }
+  .corner-deco.tl { top: -12px; left: -12px; border-width: 2px 0 0 2px; }
+  .corner-deco.tr { top: -12px; right: -12px; border-width: 2px 2px 0 0; }
+  .corner-deco.bl { bottom: -12px; left: -12px; border-width: 0 0 2px 2px; }
+  .corner-deco.br { bottom: -12px; right: -12px; border-width: 0 2px 2px 0; }
+
+  /* hero text */
+  .hero-text { position: relative; }
+
+  .sys-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem; color: var(--cyan);
+    letter-spacing: 0.25em; opacity: 0.7;
+    margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .sys-tag::before { content: '>_'; }
+
+  h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0.05em;
+    color: #fff;
+    text-shadow:
+      0 0 20px rgba(0,245,255,0.4),
+      0 0 60px rgba(0,245,255,0.15);
+    position: relative;
+  }
+  h1 .glitch-wrap {
+    display: inline-block; position: relative;
+  }
+  h1 .glitch-wrap::before,
+  h1 .glitch-wrap::after {
+    content: attr(data-text);
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    font-family: inherit; font-size: inherit; font-weight: inherit;
+  }
+  h1 .glitch-wrap::before {
+    color: var(--cyan); opacity: 0.7;
+    animation: glitch-1 3.5s infinite;
+    clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%);
+  }
+  h1 .glitch-wrap::after {
+    color: var(--purple); opacity: 0.6;
+    animation: glitch-2 3.5s infinite;
+    clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
+  }
+  @keyframes glitch-1 {
+    0%,90%,100% { transform: translate(0); }
+    91% { transform: translate(-3px, 1px); }
+    93% { transform: translate(3px, -1px); }
+    95% { transform: translate(-2px, 2px); }
+    97% { transform: translate(0); }
+  }
+  @keyframes glitch-2 {
+    0%,88%,100% { transform: translate(0); }
+    89% { transform: translate(3px, 1px); }
+    91% { transform: translate(-2px, -1px); }
+    93% { transform: translate(2px, 0); }
+    95% { transform: translate(0); }
+  }
+
+  .subtitle {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: clamp(0.7rem, 1.8vw, 0.9rem);
+    color: var(--cyan);
+    letter-spacing: 0.18em;
+    margin-top: 1rem;
+    min-height: 1.5em;
+    opacity: 0.85;
+  }
+  .subtitle .cursor-blink { animation: blink 1s infinite; }
+  @keyframes blink { 0%,49% { opacity: 1; } 50%,100% { opacity: 0; } }
+
+  .hero-tags {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    margin-top: 1.8rem;
+  }
+  .tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem; letter-spacing: 0.15em;
+    padding: 4px 12px;
+    border: 1px solid rgba(0,245,255,0.25);
+    border-radius: 2px;
+    color: var(--text-dim);
+    background: rgba(0,245,255,0.04);
+    transition: all 0.2s;
+  }
+  .tag:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+    box-shadow: 0 0 10px rgba(0,245,255,0.2);
+    background: rgba(0,245,255,0.08);
+  }
+
+  .hero-cta {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    margin-top: 2.5rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem; letter-spacing: 0.2em;
+    color: var(--bg); background: var(--cyan);
+    padding: 10px 24px; border-radius: 2px;
+    text-decoration: none;
+    transition: all 0.2s;
+    box-shadow: 0 0 20px rgba(0,245,255,0.4);
+  }
+  .hero-cta:hover {
+    background: #fff;
+    box-shadow: 0 0 40px rgba(0,245,255,0.7);
+    transform: translateY(-2px);
+  }
+
+  /* hero ambient glow */
+  .hero-glow {
+    position: absolute; border-radius: 50%; pointer-events: none; z-index: 0;
+  }
+  .glow-1 {
+    width: 600px; height: 600px;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    background: radial-gradient(ellipse, rgba(0,132,255,0.06) 0%, transparent 70%);
+  }
+  .glow-2 {
+    width: 300px; height: 300px;
+    top: 20%; right: 10%;
+    background: radial-gradient(ellipse, rgba(191,90,242,0.05) 0%, transparent 70%);
+    animation: float 8s ease-in-out infinite;
+  }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+
+  /* scroll indicator */
+  .scroll-ind {
+    position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    font-family: 'Share Tech Mono', monospace; font-size: 0.6rem;
+    color: var(--text-dim); letter-spacing: 0.2em;
+    animation: float 2s ease-in-out infinite;
+  }
+  .scroll-line {
+    width: 1px; height: 40px;
+    background: linear-gradient(to bottom, var(--cyan), transparent);
+  }
+
+  /* ── SECTION COMMON ── */
+  section { padding: 6rem 2rem; max-width: 1100px; margin: 0 auto; }
+
+  .section-header {
+    margin-bottom: 3.5rem;
+    display: flex; align-items: center; gap: 1.2rem;
+  }
+  .section-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem; color: var(--cyan); opacity: 0.5;
+  }
+  .section-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(1rem, 3vw, 1.4rem);
+    font-weight: 700; color: #fff;
+    letter-spacing: 0.1em;
+  }
+  .section-line {
+    flex: 1; height: 1px;
+    background: linear-gradient(to right, rgba(0,245,255,0.3), transparent);
+  }
+
+  /* ── CARDS / PANELS ── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 460px), 1fr));
+    gap: 1.5rem;
+  }
+
+  .card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 4px;
+    padding: 2rem;
+    position: relative; overflow: hidden;
+    backdrop-filter: blur(12px);
+    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+    opacity: 0; transform: translateY(30px);
+  }
+  .card.visible {
+    opacity: 1; transform: translateY(0);
+    transition: opacity 0.6s ease, transform 0.6s ease,
+                box-shadow 0.3s, border-color 0.3s;
+  }
+  .card:hover {
+    border-color: rgba(0,245,255,0.4);
+    box-shadow: 0 0 30px rgba(0,245,255,0.08), inset 0 0 30px rgba(0,245,255,0.02);
+    transform: translateY(-4px) !important;
+  }
+  .card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .card:hover::before { opacity: 0.7; }
+  .card::after {
+    content: '';
+    position: absolute; top: 0; right: 0;
+    width: 50px; height: 50px;
+    background: radial-gradient(ellipse at top right, rgba(0,245,255,0.06), transparent);
+    pointer-events: none;
+  }
+
+  /* card corner accent */
+  .card-corner {
+    position: absolute; top: 0; right: 0;
+    width: 0; height: 0;
+    border-style: solid;
+    border-width: 0 24px 24px 0;
+    border-color: transparent rgba(0,245,255,0.25) transparent transparent;
+  }
+
+  .card-icon {
+    font-size: 1.6rem; margin-bottom: 1rem;
+    display: inline-block;
+    filter: drop-shadow(0 0 8px var(--cyan));
+  }
+  .card-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.85rem; font-weight: 700;
+    color: var(--cyan); letter-spacing: 0.1em;
+    margin-bottom: 0.8rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .card-title::before {
+    content: '//';
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    opacity: 0.5; color: var(--text-dim);
+  }
+  .card-body {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.95rem; font-weight: 400;
+    color: var(--text); line-height: 1.75;
+  }
+  .card-body em {
+    font-style: normal; color: var(--cyan);
+    font-family: 'Share Tech Mono', monospace; font-size: 0.85em;
+  }
+
+  /* ── SPECIAL: FUTURE VISION CARD ── */
+  .card.featured {
+    grid-column: 1 / -1;
+    border-color: rgba(191, 90, 242, 0.3);
+    background: linear-gradient(135deg, rgba(191,90,242,0.04), rgba(0,132,255,0.04));
+  }
+  .card.featured::before {
+    background: linear-gradient(90deg, transparent, var(--purple), var(--blue), transparent);
+    opacity: 0.5;
+  }
+  .card.featured:hover {
+    border-color: rgba(191,90,242,0.6);
+    box-shadow: 0 0 40px rgba(191,90,242,0.1), inset 0 0 40px rgba(191,90,242,0.03);
+  }
+  .card.featured .card-title { color: var(--purple); }
+  .card.featured .card-corner {
+    border-color: transparent rgba(191,90,242,0.4) transparent transparent;
+  }
+
+  .goal-list {
+    display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1.2rem;
+  }
+  .goal-item {
+    background: rgba(191,90,242,0.08);
+    border: 1px solid rgba(191,90,242,0.2);
+    border-radius: 3px;
+    padding: 0.8rem 1.2rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem; letter-spacing: 0.1em;
+    color: #d0a0ff;
+    position: relative; overflow: hidden;
+    transition: all 0.3s;
+  }
+  .goal-item:hover {
+    background: rgba(191,90,242,0.15);
+    border-color: rgba(191,90,242,0.5);
+    box-shadow: 0 0 15px rgba(191,90,242,0.2);
+  }
+  .goal-item .goal-icon { display: block; font-size: 1.5rem; margin-bottom: 0.4rem; }
+
+  /* ── STATS BAR ── */
+  #stats {
+    padding: 3rem 2rem;
+    max-width: 1100px; margin: 0 auto;
+  }
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+  }
+  .stat-box {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 4px; padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s;
+    opacity: 0; transform: translateY(20px);
+  }
+  .stat-box.visible {
+    opacity: 1; transform: translateY(0);
+    transition: opacity 0.5s ease, transform 0.5s ease, box-shadow 0.3s, border-color 0.3s;
+  }
+  .stat-box:hover {
+    border-color: rgba(0,245,255,0.35);
+    box-shadow: 0 0 20px rgba(0,245,255,0.07);
+  }
+  .stat-val {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.8rem; font-weight: 900;
+    color: var(--cyan);
+    text-shadow: 0 0 15px rgba(0,245,255,0.4);
+  }
+  .stat-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem; letter-spacing: 0.2em;
+    color: var(--text-dim); margin-top: 0.3rem;
+  }
+
+  /* ── TECH STACK ── */
+  .tech-row {
+    display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 1rem;
+  }
+  .tech-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem; letter-spacing: 0.1em;
+    padding: 5px 14px;
+    border: 1px solid rgba(0,245,255,0.2);
+    border-radius: 2px;
+    color: var(--cyan); background: rgba(0,245,255,0.04);
+    transition: all 0.2s;
+  }
+  .tech-badge:hover {
+    background: rgba(0,245,255,0.1);
+    border-color: var(--cyan);
+    box-shadow: 0 0 12px rgba(0,245,255,0.2);
+    transform: translateY(-2px);
+  }
+
+  /* progress bars */
+  .progress-list { margin-top: 1.2rem; display: flex; flex-direction: column; gap: 1rem; }
+  .progress-item { }
+  .progress-head {
+    display: flex; justify-content: space-between;
+    font-family: 'Share Tech Mono', monospace; font-size: 0.7rem;
+    color: var(--text-dim); margin-bottom: 5px;
+  }
+  .progress-head .p-pct { color: var(--cyan); }
+  .progress-track {
+    height: 3px; background: rgba(255,255,255,0.05);
+    border-radius: 2px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--blue), var(--cyan));
+    box-shadow: 0 0 8px var(--cyan);
+    width: 0; transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+  }
+  .progress-fill.animate { /* set via JS */ }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid rgba(0,245,255,0.08);
+    padding: 3rem 2rem;
+    max-width: 1100px; margin: 0 auto;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 1rem;
+  }
+  .footer-sig {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.75rem; font-weight: 700;
+    color: var(--cyan); letter-spacing: 0.2em;
+    text-shadow: 0 0 10px rgba(0,245,255,0.4);
+  }
+  .footer-copy {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem; color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    max-width: 1100px; margin: 0 auto;
+    border: none; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,245,255,0.12), transparent);
+  }
+
+  /* ── NOISE overlay ── */
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 1;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    opacity: 0.4;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .hero-inner { grid-template-columns: 1fr; gap: 2.5rem; justify-items: center; text-align: center; }
+    .profile-hex { width: 160px; height: 160px; }
+    .profile-img { width: 160px; height: 160px; }
+    .profile-placeholder { font-size: 0.5rem; }
+    h1 { font-size: clamp(2.5rem, 14vw, 4rem); }
+    .hero-tags { justify-content: center; }
+    .nav-links { display: none; }
+    .cards-grid { grid-template-columns: 1fr; }
+    .card.featured { grid-column: 1; }
+    footer { flex-direction: column; text-align: center; }
+    .sys-tag { justify-content: center; }
+  }
+
+  /* transition delays for staggered card reveals */
+  .card:nth-child(1) { transition-delay: 0s; }
+  .card:nth-child(2) { transition-delay: 0.1s; }
+  .card:nth-child(3) { transition-delay: 0.2s; }
+  .card:nth-child(4) { transition-delay: 0.3s; }
+  .card:nth-child(5) { transition-delay: 0.4s; }
+  .card:nth-child(6) { transition-delay: 0.5s; }
+
+  .stat-box:nth-child(1) { transition-delay: 0s; }
+  .stat-box:nth-child(2) { transition-delay: 0.1s; }
+  .stat-box:nth-child(3) { transition-delay: 0.2s; }
+  .stat-box:nth-child(4) { transition-delay: 0.3s; }
+</style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Background effects -->
+<canvas id="bg-canvas"></canvas>
+<div class="grid-bg"></div>
+<div class="scanlines"></div>
+
+<div class="wrapper">
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">RDH::SYS</div>
+    <ul class="nav-links">
+      <li><a href="#about">ORIGIN</a></li>
+      <li><a href="#approach">METHOD</a></li>
+      <li><a href="#beyond">REALM</a></li>
+      <li><a href="#vision">VISION</a></li>
+    </ul>
+    <div class="status-dot" title="System Online"></div>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-glow glow-1"></div>
+    <div class="hero-glow glow-2"></div>
+
+    <div class="hero-inner">
+      <!-- Profile Image -->
+      <div class="profile-wrap">
+        <div class="profile-hex">
+          <img class="profile-img" src="YOUR_IMAGE_PATH_HERE.jpg"
+               alt="Ridhaan"
+               id="profileImg">
+          <!-- Placeholder shown if no image -->
+          <div class="profile-placeholder" id="profilePlaceholder">
+            <span class="ph-icon">◈</span>
+            <span class="ph-text">IMAGE<br>SLOT<br>[REPLACE<br>SRC]</span>
+          </div>
+          <div class="corner-deco tl"></div>
+          <div class="corner-deco tr"></div>
+          <div class="corner-deco bl"></div>
+          <div class="corner-deco br"></div>
+        </div>
+      </div>
+
+      <!-- Hero Text -->
+      <div class="hero-text">
+        <div class="sys-tag">IDENTITY_FILE // LOADED</div>
+        <h1>
+          <span class="glitch-wrap" data-text="RIDHAAN">RIDHAAN</span>
+        </h1>
+        <div class="subtitle">
+          <span id="typedText"></span><span class="cursor-blink">▍</span>
+        </div>
+        <div class="hero-tags">
+          <span class="tag">PROGRAMMER</span>
+          <span class="tag">DEVELOPER</span>
+          <span class="tag">HACKER</span>
+          <span class="tag">WEB_DEV</span>
+          <span class="tag">ASPIRING_IIT</span>
+          <span class="tag">PROBLEM_SOLVER</span>
+        </div>
+        <a href="#about" class="hero-cta">
+          ▶ ACCESS_PROFILE
+        </a>
+      </div>
+    </div>
+
+    <div class="scroll-ind">
+      <span>SCROLL</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div id="stats">
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-val" data-target="100">0</div>
+        <div class="stat-label">COMPLETION_%</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val">∞</div>
+        <div class="stat-label">MOVIES_WATCHED</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" data-target="1">0</div>
+        <div class="stat-label">ACTIVE_PROJECTS</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val">IIT</div>
+        <div class="stat-label">TARGET_INSTITUTE</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- BIO SECTIONS -->
+  <section id="about">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2 class="section-title">ORIGIN_FILES</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="cards-grid">
+
+      <!-- Card 1: The Spark -->
+      <div class="card">
+        <div class="card-corner"></div>
+        <div class="card-icon">⚡</div>
+        <div class="card-title">THE SPARK & THE SETUP</div>
+        <div class="card-body">
+          Ridhaan's fascination with technology began simply as a natural curiosity about devices
+          and how they operated. This early interest quickly evolved from just using technology to
+          wanting to understand the mechanics behind it. Today, working from a standard,
+          <em>medium-spec Acer laptop</em>, Ridhaan tackles programming with a relentless mindset.
+          When faced with a challenging bug or a complex piece of logic, the philosophy is simple
+          but powerful: <em>the code must be completed</em>, whatever it takes to do so.
+        </div>
+      </div>
+
+      <!-- Card 2: Ideation -->
+      <div class="card">
+        <div class="card-corner"></div>
+        <div class="card-icon">💡</div>
+        <div class="card-title">ORGANIC IDEATION & DEVELOPMENT</div>
+        <div class="card-body">
+          As a developer who is actively learning and experimenting, Ridhaan doesn't force ideas
+          to appear. Instead, inspiration strikes organically from the real world. A perfect example
+          was a trip to the store — watching a cashier scan a barcode sparked a desire to understand
+          the mechanism, prompting Ridhaan to immediately start building a <em>simulated barcode scanner</em>.<br><br>
+          Currently, this creativity is being channeled into developing an interactive web platform
+          hosting unique, engaging mini-games, inspired by sites like <em>neal.fun</em>.
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section id="approach">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2 class="section-title">METHODOLOGY</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="cards-grid">
+
+      <!-- Card 3: Technical Approach -->
+      <div class="card">
+        <div class="card-corner"></div>
+        <div class="card-icon">⚙️</div>
+        <div class="card-title">TECHNICAL APPROACH</div>
+        <div class="card-body">
+          Ridhaan is building a strong foundation in <em>core web technologies</em>. The development
+          process is focused on writing and understanding code directly, utilizing a little AI purely
+          as an assistive tool to improve existing code and efficiently check for errors. This ensures
+          a <em>hands-on learning experience</em> while maintaining high-quality output.
+        </div>
+        <div class="tech-row">
+          <span class="tech-badge">HTML5</span>
+          <span class="tech-badge">CSS3</span>
+          <span class="tech-badge">JAVASCRIPT</span>
+          <span class="tech-badge">WEB_TECH</span>
+        </div>
+        <div class="progress-list">
+          <div class="progress-item">
+            <div class="progress-head"><span>HTML / CSS</span><span class="p-pct">78%</span></div>
+            <div class="progress-track"><div class="progress-fill" data-width="78"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-head"><span>JAVASCRIPT</span><span class="p-pct">62%</span></div>
+            <div class="progress-track"><div class="progress-fill" data-width="62"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-head"><span>PROBLEM SOLVING</span><span class="p-pct">90%</span></div>
+            <div class="progress-track"><div class="progress-fill" data-width="90"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4: Discipline -->
+      <div class="card">
+        <div class="card-corner"></div>
+        <div class="card-icon">🎯</div>
+        <div class="card-title">THE DISCIPLINE: ACADEMICS & FREE TIME</div>
+        <div class="card-body">
+          Balancing academics and a passion for coding requires strict discipline. For Ridhaan,
+          study time is a <em>daily, non-negotiable priority</em>. However, programming is never
+          left behind — it is woven into any available free time, with deep dives into coding
+          happening during <em>weekends, summer holidays,</em> and <em>winter vacations</em>.
+        </div>
+        <div class="tech-row" style="margin-top:1.2rem">
+          <span class="tech-badge" style="border-color:rgba(191,90,242,0.3);color:var(--purple);">ACADEMICS</span>
+          <span class="tech-badge" style="border-color:rgba(191,90,242,0.3);color:var(--purple);">CODING</span>
+          <span class="tech-badge" style="border-color:rgba(191,90,242,0.3);color:var(--purple);">DISCIPLINE</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section id="beyond">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2 class="section-title">BEYOND_THE_SCREEN</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="cards-grid">
+
+      <!-- Card 5: Beyond the screen -->
+      <div class="card">
+        <div class="card-corner"></div>
+        <div class="card-icon">🎬</div>
+        <div class="card-title">BEYOND THE SCREEN</div>
+        <div class="card-body">
+          When stepping away from the keyboard, Ridhaan steps into entirely different worlds.
+          A <em>massive film enthusiast</em>, Ridhaan has watched an uncountable number of movies
+          across various genres. In addition to cinema, <em>mobile gaming</em> serves as a primary
+          way to unwind and disconnect.<br><br>
+          To Ridhaan, the creative escapism of movies and the logical world of software development
+          are two completely separate, equally enjoyed realms.
+        </div>
+        <div class="tech-row" style="margin-top:1.2rem">
+          <span class="tech-badge">CINEMA</span>
+          <span class="tech-badge">MOBILE_GAMING</span>
+          <span class="tech-badge">CREATIVE_ESCAPISM</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section id="vision">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2 class="section-title">FUTURE_VISION</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="cards-grid">
+
+      <!-- Card 6: Future Vision - FEATURED -->
+      <div class="card featured">
+        <div class="card-corner"></div>
+        <div class="card-icon" style="filter:drop-shadow(0 0 8px var(--purple))">🚀</div>
+        <div class="card-title" style="color:var(--purple)">THE FUTURE VISION</div>
+        <div class="card-body">
+          Looking ahead, Ridhaan has set <em style="color:var(--purple)">highly ambitious and definitive goals</em>.
+          The primary academic milestone is to crack the highly competitive
+          <em style="color:var(--purple)">JEE</em> and secure a seat at an
+          <em style="color:var(--purple)">Indian Institute of Technology (IIT)</em>. Ultimately,
+          the career vision is absolute mastery — Ridhaan aims to become an
+          <em style="color:var(--purple)">expert-level, highly skilled programmer, developer, and hacker</em>,
+          intending to conquer and understand every facet of computer science and software engineering.
+        </div>
+        <div class="goal-list">
+          <div class="goal-item">
+            <span class="goal-icon">🏛️</span>
+            CRACK JEE ADVANCED<br>→ SECURE IIT SEAT
+          </div>
+          <div class="goal-item">
+            <span class="goal-icon">💻</span>
+            EXPERT-LEVEL<br>PROGRAMMER
+          </div>
+          <div class="goal-item">
+            <span class="goal-icon">🔓</span>
+            MASTER HACKER<br>& DEVELOPER
+          </div>
+          <div class="goal-item">
+            <span class="goal-icon">∞</span>
+            CONQUER ALL<br>OF CS
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-sig">RIDHAAN // SYS.BIO v1.0</div>
+    <div class="footer-copy">ASPIRING PROGRAMMER · DEVELOPER · HACKER · IIT BOUND</div>
+  </footer>
+
+</div><!-- end wrapper -->
+
+<script>
+/* ═══════════════════════════════════════
+   1. CURSOR
+════════════════════════════════════════ */
+const cursor = document.getElementById('cursor');
+const cursorRing = document.getElementById('cursorRing');
+let mx = -100, my = -100, rx = -100, ry = -100;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+function animCursor() {
+  cursor.style.left = mx + 'px';
+  cursor.style.top  = my + 'px';
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  cursorRing.style.left = rx + 'px';
+  cursorRing.style.top  = ry + 'px';
+  requestAnimationFrame(animCursor);
+}
+animCursor();
+
+/* ═══════════════════════════════════════
+   2. PARTICLE CANVAS
+════════════════════════════════════════ */
+(function() {
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [], lines = [];
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const COUNT = Math.min(60, Math.floor(window.innerWidth / 22));
+
+  class Particle {
+    constructor() { this.reset(); }
+    reset() {
+      this.x = Math.random() * W;
+      this.y = Math.random() * H;
+      this.vx = (Math.random() - 0.5) * 0.3;
+      this.vy = (Math.random() - 0.5) * 0.3;
+      this.r = Math.random() * 1.5 + 0.3;
+      this.alpha = Math.random() * 0.5 + 0.1;
+      this.color = Math.random() > 0.6 ? '#00f5ff' : (Math.random() > 0.5 ? '#0a84ff' : '#bf5af2');
+    }
+    update() {
+      this.x += this.vx; this.y += this.vy;
+      if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset();
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fillStyle = this.color;
+      ctx.globalAlpha = this.alpha;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  for (let i = 0; i < COUNT; i++) particles.push(new Particle());
+
+  function connectParticles() {
+    const MAX_DIST = 130;
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const a = particles[i], b = particles[j];
+        const dx = a.x - b.x, dy = a.y - b.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < MAX_DIST) {
+          const alpha = (1 - dist / MAX_DIST) * 0.12;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.strokeStyle = `rgba(0,245,255,${alpha})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+  // mouse repulsion
+  let mouseX = W/2, mouseY = H/2;
+  document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+
+  function loop() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => {
+      const dx = p.x - mouseX, dy = p.y - mouseY;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < 80) {
+        p.vx += dx / dist * 0.04;
+        p.vy += dy / dist * 0.04;
+      }
+      // speed clamp
+      const speed = Math.sqrt(p.vx*p.vx + p.vy*p.vy);
+      if (speed > 1) { p.vx *= 0.95; p.vy *= 0.95; }
+      p.update(); p.draw();
+    });
+    connectParticles();
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+
+/* ═══════════════════════════════════════
+   3. TYPING EFFECT
+════════════════════════════════════════ */
+const phrases = [
+  'ASPIRING_PROGRAMMER.exe',
+  'DEVELOPER & BUILDER',
+  'ETHICAL HACKER IN TRAINING',
+  'FUTURE_IIT_STUDENT',
+  'CODE MUST BE COMPLETED.',
+];
+let pIdx = 0, cIdx = 0, deleting = false;
+const typedEl = document.getElementById('typedText');
+
+function type() {
+  const phrase = phrases[pIdx];
+  if (!deleting) {
+    typedEl.textContent = phrase.substring(0, cIdx + 1);
+    cIdx++;
+    if (cIdx === phrase.length) {
+      deleting = true;
+      setTimeout(type, 1800);
+      return;
+    }
+  } else {
+    typedEl.textContent = phrase.substring(0, cIdx - 1);
+    cIdx--;
+    if (cIdx === 0) {
+      deleting = false;
+      pIdx = (pIdx + 1) % phrases.length;
+    }
+  }
+  setTimeout(type, deleting ? 45 : 80);
+}
+type();
+
+/* ═══════════════════════════════════════
+   4. SCROLL REVEAL
+════════════════════════════════════════ */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      // trigger progress bars if inside
+      e.target.querySelectorAll('.progress-fill[data-width]').forEach(bar => {
+        setTimeout(() => bar.style.width = bar.dataset.width + '%', 200);
+      });
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.card, .stat-box').forEach(el => observer.observe(el));
+
+/* ═══════════════════════════════════════
+   5. ANIMATED COUNTERS
+════════════════════════════════════════ */
+const counterObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.stat-val[data-target]').forEach(el => {
+        const target = parseInt(el.dataset.target);
+        let current = 0;
+        const step = Math.ceil(target / 60);
+        const iv = setInterval(() => {
+          current = Math.min(current + step, target);
+          el.textContent = current + (target === 100 ? '%' : '');
+          if (current >= target) clearInterval(iv);
+        }, 25);
+      });
+      counterObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.3 });
+counterObs.observe(document.getElementById('stats'));
+
+/* ═══════════════════════════════════════
+   6. PROFILE IMAGE PLACEHOLDER
+════════════════════════════════════════ */
+const img = document.getElementById('profileImg');
+const placeholder = document.getElementById('profilePlaceholder');
+// Hide placeholder if image loads successfully
+img.onload = () => { placeholder.style.display = 'none'; };
+img.onerror = () => { img.style.display = 'none'; placeholder.style.display = 'flex'; };
+// Initial check: if src is placeholder string, show placeholder
+if (!img.src || img.src.includes('YOUR_IMAGE_PATH_HERE')) {
+  img.style.display = 'none';
+  placeholder.style.display = 'flex';
+}
+
+/* ═══════════════════════════════════════
+   7. NAV ACTIVE + GLITCH on LOAD
+════════════════════════════════════════ */
+// Trigger glitch animation on page load
+setTimeout(() => {
+  document.querySelector('h1 .glitch-wrap').style.animation = 'glitch-1 0.3s';
+  setTimeout(() => {
+    document.querySelector('h1 .glitch-wrap').style.animation = '';
+  }, 300);
+}, 500);
+</script>
+</body>
+</html>
